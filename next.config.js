@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-}
+	reactStrictMode: true,
+	poweredByHeader: false,
+	env: {
+		API: "http://localhost:8000/api",
+	},
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
