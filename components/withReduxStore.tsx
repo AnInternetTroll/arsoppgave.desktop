@@ -1,11 +1,12 @@
 import App from "next/app";
+import { NextComponentType, NextPageContext } from "next/types";
 import React from "react";
 import { Provider } from "react-redux";
 import { AnyAction, EmptyObject, Store } from "redux";
 import initializeStore, { initialState, State } from "./store";
 
 export const withRedux = (
-	PageComponent: typeof React.Component,
+	PageComponent: NextComponentType<NextPageContext, any, any>,
 	{ ssr = true } = {},
 ) => {
 	const isDevelopment = process.env.NODE_ENV !== "production";
@@ -24,6 +25,7 @@ export const withRedux = (
 
 	// Make sure people don't use this HOC on _app.js level
 	if (isDevelopment) {
+		// @ts-expect-error idk what this means ngl
 		const isAppHoc = PageComponent === App ||
 			PageComponent.prototype instanceof App;
 		if (isAppHoc) {
@@ -33,7 +35,6 @@ export const withRedux = (
 
 	// Set the correct displayName in development
 	if (isDevelopment) {
-		// @ts-expect-error Honestly I have no idea why or what displayName is.
 		const displayName = PageComponent.displayName || PageComponent.name ||
 			"Component";
 
@@ -42,28 +43,22 @@ export const withRedux = (
 
 	if (
 		ssr ||
-		// @ts-expect-error getInitialProps is a nextjs thing
 		PageComponent.getInitialProps
 	) {
 		WithRedux.getInitialProps = async (
-			context: {
-				reduxStore: Store<State, AnyAction> & {
-					dispatch: unknown;
-				};
-			},
+			context: NextPageContext,
 		) => {
 			// Get or Create the store with `undefined` as initialState
 			// This allows you to set a custom default initialState
 			const reduxStore = getOrInitializeStore();
 
 			// Provide the store to getInitialProps of pages
+			// @ts-ignore copy pasted from redux nextjs example
 			context.reduxStore = reduxStore;
 
 			// Run getInitialProps from HOCed PageComponent
 			const pageProps =
-				// @ts-expect-error Another nextjs thing
 				typeof PageComponent.getInitialProps === "function"
-					// @ts-expect-error Another nextjs thing
 					? await PageComponent.getInitialProps(context)
 					: {};
 

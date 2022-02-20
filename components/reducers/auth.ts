@@ -8,7 +8,7 @@ import {
 	SAVE_TOKEN,
 } from "./types";
 
-export const reducer: Reducer = (state = initialState, action) => {
+export const reducer: Reducer = (state = {}, action) => {
 	switch (action.type) {
 		case SAVE_CURRENT_USER:
 			return { ...state, user: action.payload };

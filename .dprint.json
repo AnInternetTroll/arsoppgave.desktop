@@ -6,15 +6,18 @@
 		"binaryExpression.operatorPosition": "sameLine"
 	},
 	"includes": [
-		"**/*.{ts,tsx,js,jsx,mjs,json,md}"
+		"**/*.{ts,tsx,js,jsx,mjs,json,md}",
+		"src-tauri/**/*.{rs}"
 	],
 	"excludes": [
 		"**/node_modules",
-		"**/*-lock.json"
+		"**/*-lock.json",
+		"src-tauri/target/"
 	],
 	"plugins": [
 		"https://plugins.dprint.dev/typescript-0.64.0.wasm",
 		"https://plugins.dprint.dev/json-0.14.1.wasm",
-		"https://plugins.dprint.dev/markdown-0.12.2.wasm"
+		"https://plugins.dprint.dev/markdown-0.12.2.wasm",
+		"https://plugins.dprint.dev/rustfmt-0.5.3.exe-plugin@50d39f72a7be52d8a05d6099ed5fbbc1710b6acc57a5b389aabd0b9774ce6fde"
 	]
 }
