@@ -37,7 +37,7 @@ function saveToLocalStorage(state: State): void {
 export default function initializeStore(initialState = {}) {
 	return createStore(
 		rootReducer,
-		loadFromLocalStorage(),
+		typeof localStorage !== "undefined" ? loadFromLocalStorage() : {},
 		composeWithDevTools(applyMiddleware(thunk)),
 	);
 }

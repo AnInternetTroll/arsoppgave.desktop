@@ -3,7 +3,7 @@ const nextConfig = {
 	reactStrictMode: true,
 	poweredByHeader: false,
 	env: {
-		API: "http://localhost:8000/api",
+		API: "http://localhost:8080/api",
 	},
 };
 

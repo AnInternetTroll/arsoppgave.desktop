@@ -1,18 +1,24 @@
 import { type FormEventHandler, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import { connect, useDispatch, useSelector } from "react-redux";
 import type { ApiError, Token, User } from "./api_types";
+import { SAVE_TOKEN } from "./reducers/types";
 
-export default function Login() {
+export function Login({}) {
 	const [feedback, setFeedback] = useState("");
+	const token = useSelector(state => state.auth.token);
+	const dispatch = useDispatch();
 
 	const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+		e.preventDefault();
 		const formData = new FormData(e.currentTarget);
 		login(
 			formData.get("email")! as string,
 			formData.get("password")! as string,
 		).then(token => {
 			setFeedback("Logged in!");
+			dispatch({ type: SAVE_TOKEN, payload: token.token });
 		}).catch((err: ApiError) => {
 			setFeedback("An error has occured: " + err.message);
 		});
@@ -46,7 +52,9 @@ export default function Login() {
 			</Form.Group>
 			<Button variant="primary" type="submit">
 				Submit
-			</Button>
+			</Button> {feedback}
+			<br />
+			Your token is {token}
 		</Form>
 	);
 }
@@ -67,3 +75,16 @@ async function login(email: string, password: string): Promise<Token> {
 	if (response.ok) return responseData as Token;
 	else throw responseData as ApiError;
 }
+
+const mapStateToProps = state => ({
+	user: state.auth.user,
+});
+
+const mapDispatchToProps = dispatch => {
+	return {
+		saveToken: () => dispatch(saveToken()),
+		deleteToken: () => dispatch(deleteToken()),
+	};
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

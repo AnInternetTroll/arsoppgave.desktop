@@ -2,8 +2,7 @@ import App from "next/app";
 import { NextComponentType, NextPageContext } from "next/types";
 import React from "react";
 import { Provider } from "react-redux";
-import { AnyAction, EmptyObject, Store } from "redux";
-import initializeStore, { initialState, State } from "./store";
+import initializeStore, { State } from "./store";
 
 export const withRedux = (
 	PageComponent: NextComponentType<NextPageContext, any, any>,

@@ -5,10 +5,8 @@ export interface User {
 }
 
 export interface Token {
-	id: number;
-	user: number;
+	token: string;
 	exp: number;
-	scope: "read" | "write" | "readwrite";
 }
 
 export interface Member {
