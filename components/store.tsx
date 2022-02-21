@@ -1,10 +1,9 @@
-import { applyMiddleware, createStore } from "redux";
+import { useMemo } from "react";
+import { applyMiddleware, createStore, Store } from "redux";
 import { composeWithDevTools } from "redux-devtools-extension";
 import thunk from "redux-thunk";
 import { Token, User } from "./api_types";
 import rootReducer from "./reducers";
-
-const LOCAL_STORAGE_KEY = "STATE";
 
 export interface State {
 	auth?: {
@@ -15,29 +14,39 @@ export interface State {
 
 export const initialState: State = { auth: {} };
 
-function loadFromLocalStorage(): State | undefined {
-	try {
-		const serializedState = localStorage.getItem(LOCAL_STORAGE_KEY);
-		if (serializedState === null) return undefined;
-		return JSON.parse(serializedState) as State;
-	} catch (e) {
-		console.error(e);
-	}
-}
-
-function saveToLocalStorage(state: State): void {
-	try {
-		const serializedState = JSON.stringify(state);
-		localStorage.setItem(LOCAL_STORAGE_KEY, serializedState);
-	} catch (e) {
-		console.error(e);
-	}
-}
-
-export default function initializeStore(initialState = {}) {
+function makeStore(initialState1 = initialState) {
 	return createStore(
 		rootReducer,
-		typeof localStorage !== "undefined" ? loadFromLocalStorage() : {},
+		initialState1,
 		composeWithDevTools(applyMiddleware(thunk)),
 	);
+}
+
+let store: Store<State> | undefined;
+
+export default function initializeStore(preloadedState: State | undefined) {
+	let _store = store ?? makeStore(preloadedState);
+
+	// After navigating to a page with an initial Redux state, merge that state
+	// with the current state in the store, and create a new store
+	if (preloadedState && store) {
+		_store = makeStore({
+			...store.getState(),
+			...preloadedState,
+		});
+		// Reset the current store
+		store = undefined;
+	}
+
+	// For SSG and SSR always create a new store
+	if (typeof window === "undefined") return _store;
+	// Create the store once in the client
+	if (!store) store = _store;
+
+	return _store;
+}
+
+export function useStore(initialState: State | undefined) {
+	const store = useMemo(() => initializeStore(initialState), [initialState]);
+	return store;
 }

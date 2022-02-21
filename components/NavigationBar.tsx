@@ -2,8 +2,16 @@ import Link from "next/link";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
+import NavDropdown from "react-bootstrap/NavDropdown";
+import { useSelector } from "react-redux";
+import { User } from "./api_types";
+import { State } from "./store";
 
 export default function NavigationBar() {
+	const user = useSelector<State, User | undefined>(state =>
+		state?.auth?.user
+	);
+
 	return (
 		<Navbar bg="primary" variant="dark">
 			<Container>
@@ -30,11 +38,35 @@ export default function NavigationBar() {
 					</Link>
 				</Nav>
 				<Nav>
-					<Link href="/login" passHref>
-						<Nav.Link>
-							Login
-						</Nav.Link>
-					</Link>
+					{user
+						? (
+							<>
+								<NavDropdown
+									title={user.username}
+								>
+									<Link
+										href={`/user/${
+											encodeURIComponent(user.username)
+										}/settings`}
+										passHref
+									>
+										<NavDropdown.Item>
+											Settings
+										</NavDropdown.Item>
+									</Link>
+								</NavDropdown>
+								<Nav.Link>
+									Log out
+								</Nav.Link>
+							</>
+						)
+						: (
+							<Link href="/login" passHref>
+								<Nav.Link>
+									Login
+								</Nav.Link>
+							</Link>
+						)}
 				</Nav>
 			</Container>
 		</Navbar>

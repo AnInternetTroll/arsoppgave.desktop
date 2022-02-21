@@ -2,7 +2,8 @@ import App from "next/app";
 import { NextComponentType, NextPageContext } from "next/types";
 import React from "react";
 import { Provider } from "react-redux";
-import initializeStore, { State } from "./store";
+import { persistStore } from "redux-persist";
+import initializeStore, { type State, useStore } from "./store";
 
 export const withRedux = (
 	PageComponent: NextComponentType<NextPageContext, any, any>,
@@ -14,7 +15,11 @@ export const withRedux = (
 			initialReduxState: State;
 		},
 	) => {
-		const store = getOrInitializeStore(initialReduxState);
+		// @ts-ignore I copy pasted this
+		const store = useStore(props.initialReduxState);
+		const persistor = persistStore(store, {}, () => {
+			persistor.persist();
+		});
 		return (
 			<Provider store={store}>
 				<PageComponent {...props} />

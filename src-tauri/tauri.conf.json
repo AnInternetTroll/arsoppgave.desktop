@@ -50,7 +50,9 @@
 			"active": false
 		},
 		"allowlist": {
-			"all": true
+			"http": {
+				"scope": ["http://localhost:8080/api/*"]
+			}
 		},
 		"windows": [
 			{

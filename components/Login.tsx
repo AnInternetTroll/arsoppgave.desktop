@@ -1,13 +1,17 @@
 import { type FormEventHandler, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { connect, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { ApiError, Token, User } from "./api_types";
-import { SAVE_TOKEN } from "./reducers/types";
+import { SAVE_CURRENT_USER, SAVE_TOKEN } from "./reducers/types";
+import { State } from "./store";
+import { getUser, login } from "./utils/auth";
 
-export function Login({}) {
+export default function Login() {
 	const [feedback, setFeedback] = useState("");
-	const token = useSelector(state => state.auth.token);
+	const token = useSelector<State, Token | undefined>(state =>
+		state?.auth?.token
+	);
 	const dispatch = useDispatch();
 
 	const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
@@ -18,9 +22,19 @@ export function Login({}) {
 			formData.get("password")! as string,
 		).then(token => {
 			setFeedback("Logged in!");
-			dispatch({ type: SAVE_TOKEN, payload: token.token });
+			dispatch({ type: SAVE_TOKEN, payload: token });
+			getUser(token.token).then((user) => {
+				dispatch({ type: SAVE_CURRENT_USER, payload: user });
+				setFeedback(`Welcome ${user.username}`);
+			});
 		}).catch((err: ApiError) => {
-			setFeedback("An error has occured: " + err.message);
+			if (err.message) setFeedback(err.message);
+			else {
+				console.error(err);
+				setFeedback(
+					"Something terrible has happened, check console and report this to the admin",
+				);
+			}
 		});
 	};
 
@@ -52,39 +66,10 @@ export function Login({}) {
 			</Form.Group>
 			<Button variant="primary" type="submit">
 				Submit
-			</Button> {feedback}
+			</Button>{" "}
+			{feedback}
 			<br />
-			Your token is {token}
+			Your token is {token?.token}
 		</Form>
 	);
 }
-/**
- * Login into a user's account with their credentials.
- * If this fails it will throw an error.
- * @param email A valid email address
- * @param password
- * @returns A token object which should be used to get a User
- */
-async function login(email: string, password: string): Promise<Token> {
-	const response = await fetch(`${process.env.API}/auth/token`, {
-		headers: {
-			Authorization: `Basic ${btoa(`${email}:${password}`)}`,
-		},
-	});
-	const responseData = await response.json();
-	if (response.ok) return responseData as Token;
-	else throw responseData as ApiError;
-}
-
-const mapStateToProps = state => ({
-	user: state.auth.user,
-});
-
-const mapDispatchToProps = dispatch => {
-	return {
-		saveToken: () => dispatch(saveToken()),
-		deleteToken: () => dispatch(deleteToken()),
-	};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
