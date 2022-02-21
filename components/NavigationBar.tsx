@@ -56,7 +56,7 @@ export default function NavigationBar() {
 									</Link>
 								</NavDropdown>
 								<Nav.Link>
-									Log out
+									<span onClick={() => dispatch({ type: DELTE_TOKEN })}>Log out</span>
 								</Nav.Link>
 							</>
 						)
