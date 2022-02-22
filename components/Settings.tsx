@@ -19,7 +19,7 @@ export function Settings() {
 	);
 	const [feedback, setFeedback] = useState("");
 	const dispatch = useDispatch();
-	if (!token || !user) return <p>You shouldn't be seeings this</p>;
+	if (!token || !user) return <p>You shouldn&apos;t be seeings this</p>;
 
 	const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
 		e.preventDefault();
