@@ -34,3 +34,28 @@ export async function login(email: string, password: string): Promise<Token> {
 	if (response.ok) return responseData as Token;
 	else throw responseData as ApiError;
 }
+
+/**
+ * Login into a user's account with their credentials.
+ * If this fails it will throw an error.
+ * @param email A valid email address
+ * @param password
+ * @returns A token object which should be used to get a User
+ */
+export async function register(
+	{ email, password, username }: {
+		email: string;
+		password: string;
+		username: string;
+	},
+): Promise<true> {
+	const response = await fetch(`${process.env.API}/auth/register`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ username, email, password }),
+	});
+	if (response.ok) return response.ok;
+	else throw await response.json() as ApiError;
+}
