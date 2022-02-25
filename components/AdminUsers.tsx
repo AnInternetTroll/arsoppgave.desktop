@@ -32,22 +32,24 @@ export function AdminUsers(): JSX.Element {
 	}, [setUsers, token]);
 	if (!token) return <h1>No token found, please log in again</h1>;
 	if (loading) return <h1>Loading...</h1>;
-	if (users.length) return <h1>No users found</h1>;
+	if (!users.length) return <h1>No users found</h1>;
 	return (
 		<Table striped bordered hover>
 			<thead>
-				<th>
-					#
-				</th>
-				<th>
-					Username
-				</th>
-				<th>
-					Email
-				</th>
-				<th>
-					Date
-				</th>
+				<tr>
+					<th>
+						#
+					</th>
+					<th>
+						Username
+					</th>
+					<th>
+						Email
+					</th>
+					<th>
+						Date
+					</th>
+				</tr>
 			</thead>
 			<tbody>
 				{users.map((user) => (
