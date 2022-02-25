@@ -5,6 +5,9 @@ const nextConfig = {
 	env: {
 		API: "http://10.12.4.30:8080/api",
 	},
+	experimental: {
+		outputStandalone: true,
+	},
 };
 
 module.exports = nextConfig;
