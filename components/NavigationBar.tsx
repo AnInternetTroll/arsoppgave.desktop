@@ -37,12 +37,12 @@ export default function NavigationBar() {
 							</Nav.Link>
 						</Link>
 						<Link href="/education" passHref>
-							<Nav.Link>
+							<Nav.Link disabled>
 								Education
 							</Nav.Link>
 						</Link>
 						<Link href="/experience" passHref>
-							<Nav.Link>
+							<Nav.Link disabled>
 								Job Experience
 							</Nav.Link>
 						</Link>
