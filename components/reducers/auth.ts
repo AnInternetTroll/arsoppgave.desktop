@@ -1,6 +1,5 @@
 import { Reducer } from "redux";
-import { Token, User } from "../api_types";
-import { initialState } from "../store";
+import { initialState, type State } from "../store";
 import {
 	DELETE_CURRENT_USER,
 	DELETE_TOKEN,
@@ -8,7 +7,7 @@ import {
 	SAVE_TOKEN,
 } from "./types";
 
-export const reducer: Reducer = (state = {}, action) => {
+export const reducer: Reducer<State> = (state = {}, action) => {
 	switch (action.type) {
 		case SAVE_CURRENT_USER:
 			return { ...state, user: action.payload };

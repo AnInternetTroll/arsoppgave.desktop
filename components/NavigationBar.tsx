@@ -5,8 +5,9 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import { useDispatch, useSelector } from "react-redux";
-import { User } from "./api_types";
-import { DELETE_CURRENT_USER, DELETE_TOKEN } from "./reducers/types";
+import { deleteToken } from "./actions/auth";
+import { Token, User } from "./api_types";
+import { DELETE_CURRENT_USER } from "./reducers/types";
 import { State } from "./store";
 
 export default function NavigationBar() {
@@ -14,6 +15,9 @@ export default function NavigationBar() {
 	const dispatch = useDispatch();
 	const user = useSelector<State, User | undefined>(state =>
 		state?.auth?.user
+	);
+	const token = useSelector<State, Token | undefined>(state =>
+		state?.auth?.token
 	);
 
 	return (
@@ -42,7 +46,7 @@ export default function NavigationBar() {
 					</Link>
 				</Nav>
 				<Nav activeKey={router.pathname}>
-					{user
+					{user && token
 						// If the user is logged in
 						? (
 							<>
@@ -63,7 +67,7 @@ export default function NavigationBar() {
 											user.role === "admin"
 										? (
 											<Link
-												href={`/admin`}
+												href="/admin"
 												passHref
 											>
 												<NavDropdown.Item>
@@ -76,7 +80,7 @@ export default function NavigationBar() {
 								<Nav.Link>
 									<span
 										onClick={() => {
-											dispatch({ type: DELETE_TOKEN });
+											deleteToken(dispatch, token?.token);
 											dispatch({
 												type: DELETE_CURRENT_USER,
 											});
