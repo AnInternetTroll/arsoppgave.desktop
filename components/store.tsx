@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { applyMiddleware, createStore, Store } from "redux";
 import { composeWithDevTools } from "redux-devtools-extension";
+import { PersistPartial } from "redux-persist/es/persistReducer";
 import thunk from "redux-thunk";
 import { Token, User } from "./api_types";
 import rootReducer from "./reducers";
@@ -12,11 +13,14 @@ export interface State {
 	};
 }
 
-export const initialState: State = { auth: {} };
+export const initialState: State = {
+	auth: {},
+};
 
 function makeStore(initialState1 = initialState) {
 	return createStore(
 		rootReducer,
+		// @ts-ignore This whole persistance thing is confusing
 		initialState1,
 		composeWithDevTools(applyMiddleware(thunk)),
 	);
@@ -41,6 +45,7 @@ export default function initializeStore(preloadedState: State | undefined) {
 	// For SSG and SSR always create a new store
 	if (typeof window === "undefined") return _store;
 	// Create the store once in the client
+	// @ts-ignore persistence issues
 	if (!store) store = _store;
 
 	return _store;

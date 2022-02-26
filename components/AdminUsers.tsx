@@ -5,6 +5,7 @@ import Offcanvas from "react-bootstrap/Offcanvas";
 import Table from "react-bootstrap/Table";
 import { useSelector } from "react-redux";
 import type { ApiError, Token, User as NormalUser } from "./api_types";
+import { ErrorOffcanvas } from "./ErrorOffcanvas";
 import type { State } from "./store";
 
 // Admins and supers can see more than regular users
@@ -83,35 +84,19 @@ function UserRow({ user: user2 }: { user: User }) {
 			else {
 				throw res.json();
 			}
-		}).then((user: User) => setUser(user)).catch(async (err: ApiError) => {
-			const error = await err;
-			console.error(error);
-			setError(error.message);
-		});
+		}).then((user: User) => setUser(user)).catch(
+			async (err: Promise<ApiError>) => {
+				const error = await err;
+				console.error(error);
+				if (error.message) setError(error.message);
+				else setError("Something has gone very wrong");
+			},
+		);
 	};
 
 	return (
 		<tr>
-			{error
-				? (
-					<Offcanvas
-						show={!!error}
-						onHide={() => setError("")}
-						placement="bottom"
-					>
-						<Container>
-							<Offcanvas.Header closeButton>
-								<Offcanvas.Title>
-									An error has occured
-								</Offcanvas.Title>
-							</Offcanvas.Header>
-							<Offcanvas.Body style={{ margin: 10 }}>
-								{error}
-							</Offcanvas.Body>
-						</Container>
-					</Offcanvas>
-				)
-				: undefined}
+			<ErrorOffcanvas error={error} setError={setError} />
 			<td>
 				{user.id}
 			</td>
