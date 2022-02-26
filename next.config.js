@@ -1,7 +1,8 @@
+const withPlugins = require("next-compose-plugins");
 const withPreact = require("next-plugin-preact");
 
 /** @type {import('next').NextConfig} */
-const nextConfig = withPreact({
+const nextConfig = withPlugins([withPreact], {
 	reactStrictMode: true,
 	poweredByHeader: false,
 	env: {
@@ -9,6 +10,9 @@ const nextConfig = withPreact({
 	},
 	experimental: {
 		outputStandalone: true,
+	},
+	images: {
+		loader: "custom",
 	},
 });
 

@@ -47,23 +47,26 @@ export const withRedux = (
 
 	if (
 		ssr ||
-		PageComponent.getInitialProps
+		// @ts-ignore
+		PageComponent.getStaticProps
 	) {
-		WithRedux.getInitialProps = async (
+		WithRedux.getStaticProps = async (
 			context: NextPageContext,
 		) => {
 			// Get or Create the store with `undefined` as initialState
 			// This allows you to set a custom default initialState
 			const reduxStore = getOrInitializeStore();
 
-			// Provide the store to getInitialProps of pages
+			// Provide the store to getStaticProps of pages
 			// @ts-ignore copy pasted from redux nextjs example
 			context.reduxStore = reduxStore;
 
-			// Run getInitialProps from HOCed PageComponent
+			// Run getStaticProps from HOCed PageComponent
 			const pageProps =
-				typeof PageComponent.getInitialProps === "function"
-					? await PageComponent.getInitialProps(context)
+				// @ts-ignore
+				typeof PageComponent.getStaticProps === "function"
+					// @ts-ignore
+					? await PageComponent.getStaticProps(context)
 					: {};
 
 			// Pass props to PageComponent
