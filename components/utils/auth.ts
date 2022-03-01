@@ -6,15 +6,10 @@ import { ApiError, Token, User } from "../api_types";
  * @param token A valid bearer token
  * @returns The user that the token belongs to
  */
-export async function getUser(token: string): Promise<User> {
-	const response = await fetch(`${process.env.API}/users/@me`, {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	});
-	const responseData = await response.json();
-	if (response.ok) return responseData as User;
-	else throw responseData as ApiError;
+export async function getUser(
+	{ token, id }: { token?: string; id?: string },
+): Promise<User> {
+	return getApi<User>(`/users/${id ? id : "@me"}`, { token });
 }
 
 /**
@@ -24,15 +19,12 @@ export async function getUser(token: string): Promise<User> {
  * @param password
  * @returns A token object which should be used to get a User
  */
-export async function login(email: string, password: string): Promise<Token> {
-	const response = await fetch(`${process.env.API}/auth/token`, {
+export function login(email: string, password: string): Promise<Token> {
+	return getApi<Token>("/auth/token", {
 		headers: {
 			Authorization: `Basic ${btoa(`${email}:${password}`)}`,
 		},
 	});
-	const responseData = await response.json();
-	if (response.ok) return responseData as Token;
-	else throw responseData as ApiError;
 }
 
 /**
@@ -42,20 +34,51 @@ export async function login(email: string, password: string): Promise<Token> {
  * @param password
  * @returns A token object which should be used to get a User
  */
-export async function register(
+export function register(
 	{ email, password, username }: {
 		email: string;
 		password: string;
 		username: string;
 	},
 ): Promise<true> {
-	const response = await fetch(`${process.env.API}/auth/register`, {
+	return getApi<null>("/auth/register", {
 		method: "POST",
+		body: { username, password, email },
+	}).then(response => !response);
+}
+
+/**
+ * A helper function which can make requests to the backend
+ * and throw an error when the status is unexpected.
+ *
+ * @param endpoint An API endpoint where the request will be made
+ *
+ * @returns The response from the API. If you know what to expect then pass a generic argument
+ * It may return `null` if the server doesn't respond with a body
+ */
+export async function getApi<T>(
+	endpoint: string,
+	{ body, token, method = "GET", signal, headers }: {
+		body?: Record<string, string>;
+		token?: string;
+		method?: "GET" | "POST" | "PATCH" | "DELETE" | "OPTIONS";
+		signal?: AbortSignal;
+		headers?: HeadersInit;
+	} = {},
+): Promise<T> {
+	const res = await fetch(`${process.env.API}${endpoint}`, {
+		signal,
+		method,
 		headers: {
+			Authorization: token ? `Bearer ${token}` : "",
 			"Content-Type": "application/json",
+			"Accept": "application/json",
+			...headers,
 		},
-		body: JSON.stringify({ username, email, password }),
+		body: body ? JSON.stringify(body) : undefined,
 	});
-	if (response.ok) return response.ok;
-	else throw await response.json() as ApiError;
+	let resBody = null;
+	if (res.status !== 204) resBody = await res.json();
+	if (res.ok) return resBody as T;
+	else throw resBody as ApiError;
 }

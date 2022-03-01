@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import LucaPic from "../public/luca.jpeg";
+import LucaPic from "../public/luca.webp";
 
 export const Home: NextPage = () => {
 	return (
@@ -17,7 +17,7 @@ export const Home: NextPage = () => {
 				width={1500}
 				height={2000}
 				alt="Luca looking over Oslo from the Opera"
-				loader={({ src }) => src}
+				unoptimized
 			/>
 		</>
 	);

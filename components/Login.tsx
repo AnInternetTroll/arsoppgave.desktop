@@ -33,7 +33,7 @@ export default function Login() {
 			// Which also saves it in localStorage
 			dispatch({ type: SAVE_TOKEN, payload: token });
 
-			getUser(token.token).then((user) => {
+			getUser({ token: token.token }).then((user) => {
 				dispatch({ type: SAVE_CURRENT_USER, payload: user });
 				setFeedback(`Welcome ${user.username}`);
 			});

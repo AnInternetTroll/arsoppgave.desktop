@@ -1,5 +1,6 @@
 const withPlugins = require("next-compose-plugins");
 const withPreact = require("next-plugin-preact");
+const withPwa = require("next-pwa");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = withPlugins([withPreact], {
@@ -14,6 +15,7 @@ const nextConfig = withPlugins([withPreact], {
 	images: {
 		loader: "custom",
 	},
+	amp: true,
 });
 
 module.exports = nextConfig;
