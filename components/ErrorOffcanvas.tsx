@@ -1,4 +1,3 @@
-import { ApiError } from "next/dist/server/api-utils";
 import type { Dispatch, SetStateAction } from "react";
 import Container from "react-bootstrap/Container";
 import Offcanvas from "react-bootstrap/Offcanvas";

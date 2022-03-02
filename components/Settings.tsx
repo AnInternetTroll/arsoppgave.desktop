@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { ApiError, Token, User } from "./api_types";
 import { SAVE_CURRENT_USER } from "./reducers/types";
 import { State } from "./store";
+import { getApi } from "./utils/auth";
 
 /**
  * USER MUST BE LOGGED IN TO SEE THIS
@@ -24,32 +25,18 @@ export function Settings() {
 	const onSubmit: FormEventHandler<HTMLFormElement> = (e) => {
 		e.preventDefault();
 		const formData = new FormData(e.currentTarget);
-		fetch(`${process.env.API}/users/@me`, {
+		getApi<User>("/users/@me", {
 			method: "PATCH",
-			headers: {
-				Authorization: `Bearer ${token.token}`,
-				"Content-Type": "application/json",
+			body: {
+				username: formData.get("username")!.toString(),
 			},
-			body: JSON.stringify({
-				username: formData.get("username"),
-			}),
-		}).then(res => {
-			if (res.ok) return res.json();
-			else throw res.json();
+			token: token.token,
 		}).then(newUser => {
 			setFeedback("Succesfully saved updates");
 			dispatch({ type: SAVE_CURRENT_USER, payload: newUser });
-		}).catch(async (err: Promise<ApiError>) => {
-			try {
-				const error = await err;
-				if (error.message) {
-					return setFeedback(error.message);
-				}
-			} catch (e) {
-				console.error("Error during JSON parsing", e);
-			}
+		}).catch(async (err: ApiError) => {
 			console.error(err);
-			setFeedback("An error has occured, please report this to an admin");
+			setFeedback(err.message);
 		});
 	};
 

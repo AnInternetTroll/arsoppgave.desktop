@@ -11,9 +11,7 @@ export const withRedux = (
 ) => {
 	const isDevelopment = process.env.NODE_ENV !== "production";
 	const WithRedux = (
-		{ initialReduxState, ...props }: {
-			initialReduxState: State;
-		},
+		{ ...props },
 	) => {
 		// @ts-ignore I copy pasted this
 		const store = useStore(props.initialReduxState);

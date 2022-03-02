@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import Table from "react-bootstrap/Table";
 import { useSelector } from "react-redux";
 import type { Log, Token } from "./api_types";
 import type { State } from "./store";
+import { getApi } from "./utils/auth";
 
 export function AdminLogs(): JSX.Element {
 	const token = useSelector<State, Token | undefined>((state) =>
@@ -10,24 +11,20 @@ export function AdminLogs(): JSX.Element {
 	);
 	const [logs, setLogs] = useState<Log[]>([]);
 	const [loading, setLoading] = useState(true);
-	useEffect(() => {
+
+	useLayoutEffect(() => {
 		if (!token) return;
-		fetch(`${process.env.API}/logs`, {
-			headers: {
-				authorization: `Bearer ${token.token}`,
-			},
-		}).then(res => {
-			if (res.ok) return res.json();
-			else {
-				throw res.json();
-			}
-		}).then((logs: Log[]) => setLogs(logs)).catch(err => {
+		getApi<Log[]>("/logs", {
+			token: token.token,
+		}).then((logs) => setLogs(logs)).catch(err => {
 			console.error(err);
 		}).finally(() => setLoading(false));
-	}, [setLogs, token]);
+	}, [setLogs, token, setLoading]);
+
 	if (loading) return <h1>Loading...</h1>;
 	if (!token) return <h1>No token found, please log in again</h1>;
 	if (!logs.length) return <h1>No logs found</h1>;
+
 	return (
 		<Table striped bordered hover>
 			<thead>

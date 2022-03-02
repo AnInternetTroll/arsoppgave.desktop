@@ -19,4 +19,4 @@ function SettingsPage() {
 	return <Settings />;
 }
 
-export default Settings;
+export default SettingsPage;

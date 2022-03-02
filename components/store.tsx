@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { applyMiddleware, createStore, Store } from "redux";
 import { composeWithDevTools } from "redux-devtools-extension";
-import { PersistPartial } from "redux-persist/es/persistReducer";
 import thunk from "redux-thunk";
 import { Token, User } from "./api_types";
 import rootReducer from "./reducers";

@@ -2,7 +2,7 @@ import { type FormEventHandler, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { useDispatch, useSelector } from "react-redux";
-import type { ApiError, Token, User } from "./api_types";
+import type { ApiError, Token } from "./api_types";
 import { SAVE_CURRENT_USER, SAVE_TOKEN } from "./reducers/types";
 import { State } from "./store";
 import { getUser, login } from "./utils/auth";

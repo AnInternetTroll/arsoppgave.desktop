@@ -59,7 +59,7 @@ export function register(
 export async function getApi<T>(
 	endpoint: string,
 	{ body, token, method = "GET", signal, headers }: {
-		body?: Record<string, string>;
+		body?: Record<string, string> | string;
 		token?: string;
 		method?: "GET" | "POST" | "PATCH" | "DELETE" | "OPTIONS";
 		signal?: AbortSignal;
@@ -75,7 +75,9 @@ export async function getApi<T>(
 			"Accept": "application/json",
 			...headers,
 		},
-		body: body ? JSON.stringify(body) : undefined,
+		body: body
+			? (typeof body === "string" ? body : JSON.stringify(body))
+			: undefined,
 	});
 	let resBody = null;
 	if (res.status !== 204) resBody = await res.json();

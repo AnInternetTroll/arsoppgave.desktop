@@ -1,5 +1,5 @@
 import { Reducer } from "redux";
-import { initialState, type State } from "../store";
+import { type State } from "../store";
 import {
 	DELETE_CURRENT_USER,
 	DELETE_TOKEN,

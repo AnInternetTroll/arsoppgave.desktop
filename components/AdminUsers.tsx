@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react";
-import { Container } from "react-bootstrap";
+import { useLayoutEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
-import Offcanvas from "react-bootstrap/Offcanvas";
 import Table from "react-bootstrap/Table";
 import { useSelector } from "react-redux";
 import type { ApiError, Token, User as NormalUser } from "./api_types";
 import { ErrorOffcanvas } from "./ErrorOffcanvas";
 import type { State } from "./store";
+import { getApi } from "./utils/auth";
 
 // Admins and supers can see more than regular users
 interface User extends NormalUser {
@@ -17,26 +16,22 @@ export function AdminUsers(): JSX.Element {
 	const token = useSelector<State, Token | undefined>((state) =>
 		state?.auth?.token
 	);
+
 	const [users, setUsers] = useState<User[]>([]);
 	const [loading, setLoading] = useState(true);
-	useEffect(() => {
+
+	useLayoutEffect(() => {
 		if (!token) return;
-		fetch(`${process.env.API}/users`, {
-			headers: {
-				authorization: `Bearer ${token.token}`,
-			},
-		}).then(res => {
-			if (res.ok) return res.json();
-			else {
-				throw res.json();
-			}
-		}).then((users: User[]) => setUsers(users)).catch(err =>
-			console.error(err)
-		).finally(() => setLoading(false));
-	}, [setUsers, token]);
-	if (!token) return <h1>No token found, please log in again</h1>;
+		getApi<User[]>("/users", {
+			token: token.token,
+		}).then((users) => setUsers(users)).catch(err => console.error(err))
+			.finally(() => setLoading(false));
+	}, [setUsers, token, setLoading]);
+
+	if (!token) return <h1>Not logged in, please log in again</h1>;
 	if (loading) return <h1>Loading...</h1>;
 	if (!users.length) return <h1>No users found</h1>;
+
 	return (
 		<Table striped bordered hover>
 			<thead>
@@ -49,6 +44,9 @@ export function AdminUsers(): JSX.Element {
 					</th>
 					<th>
 						Email
+					</th>
+					<th>
+						Role
 					</th>
 					<th>
 						Date
@@ -67,24 +65,25 @@ function UserRow({ user: user2 }: { user: User }) {
 	const token = useSelector<State, Token | undefined>(state =>
 		state?.auth?.token
 	);
+	const authenticatedUser = useSelector<State, NormalUser | undefined>((
+		state,
+	) => state?.auth?.user);
+
 	const [editable, setEditable] = useState(false);
 	const [user, setUser] = useState(user2);
 	const [error, setError] = useState("");
 
+	if (!authenticatedUser || !token) return <p>Please log in again</p>;
+
 	const saveUser = () => {
-		fetch(`${process.env.API}/users/${user.id}`, {
+		getApi<User>(`/users/${user.id}`, {
 			method: "PATCH",
-			headers: {
-				"Content-Type": "application/json",
-				authorization: `Bearer ${token?.token}`,
-			},
+			token: token.token,
 			body: JSON.stringify(user),
-		}).then(res => {
-			if (res.ok) return res.json();
-			else {
-				throw res.json();
-			}
-		}).then((user: User) => setUser(user)).catch(
+		}).then((user: User) => {
+			setUser(user);
+			setEditable(false);
+		}).catch(
 			async (err: Promise<ApiError>) => {
 				const error = await err;
 				console.error(error);
@@ -95,60 +94,90 @@ function UserRow({ user: user2 }: { user: User }) {
 	};
 
 	return (
-		<tr>
+		<>
 			<ErrorOffcanvas error={error} setError={setError} />
-			<td>
-				{user.id}
-			</td>
-			<td>
-				{editable
-					? (
-						<input
-							defaultValue={user.username}
-							placeholder="User's username here"
-							onChange={(e) =>
-								setUser({
-									...user,
-									username: e.target.value,
-								})}
-						/>
-					)
-					: user.username}
-			</td>
-			<td>
-				{user.email}
-			</td>
-			<td>
-				{user.createdAt}
-			</td>
-			<td>
-				{editable
-					? (
-						<>
-							<Button
-								variant="success"
-								onClick={saveUser}
+			<tr>
+				<td>
+					{user.id}
+				</td>
+				<td>
+					{editable
+						? (
+							<input
+								defaultValue={user.username}
+								placeholder="User's username here"
+								onChange={(e) =>
+									setUser({
+										...user,
+										username: e.target.value,
+									})}
+							/>
+						)
+						: user.username}
+				</td>
+				<td>
+					{user.email}
+				</td>
+				<td>
+					{editable && authenticatedUser.role === "super"
+						? (
+							<select
+								name="role"
+								defaultValue={user.role}
+								onChange={(e) =>
+									setUser({
+										...user,
+										role: e.target.value as
+											| "user"
+											| "admin",
+									})}
 							>
-								Save
-							</Button>
-							{"	"}
+								<option value="user">
+									User
+								</option>
+								<option value="admin">
+									Admin
+								</option>
+							</select>
+						)
+						: user.role}
+				</td>
+				<td>
+					{new Date(user.createdAt).toLocaleDateString()}
+				</td>
+				<td>
+					{editable
+						? (
+							<>
+								<Button
+									variant="success"
+									onClick={saveUser}
+								>
+									Save
+								</Button>
+								{"	"}
+								<Button
+									variant="danger"
+									onClick={() => {
+										setEditable(!editable);
+										setUser(user2);
+									}}
+								>
+									Cancel
+								</Button>
+							</>
+						)
+						: (
 							<Button
-								variant="danger"
+								variant="primary"
+								disabled={user.role === "super"}
 								onClick={() => setEditable(!editable)}
 							>
-								Cancel
+								Edit
 							</Button>
-						</>
-					)
-					: (
-						<Button
-							variant="primary"
-							onClick={() => setEditable(!editable)}
-						>
-							Edit
-						</Button>
-					)}
-			</td>
-		</tr>
+						)}
+				</td>
+			</tr>
+		</>
 	);
 }
